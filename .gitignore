@@ -3,3 +3,6 @@
 .php-cs-fixer.cache
 vendor
 unraid-plugin-customizer
+tsidp/unraid-tsidp
+tsidp/tsidp
+src/usr/local/sbin/tsidp

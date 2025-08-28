@@ -1,12 +1,12 @@
-         |-----handy-ruler------------------------------------------------------|
-my-plugin: my-plugin
-my-plugin:
-my-plugin: Sample slack-desc file
-my-plugin:
-my-plugin:
-my-plugin:
-my-plugin:
-my-plugin:
-my-plugin:
-my-plugin: https://github.com/my-user/my-plugin
-my-plugin:
+            |-----handy-ruler------------------------------------------------------|
+unraid-tsidp: unraid-tsidp
+unraid-tsidp:
+unraid-tsidp: Provide single sign on to the Unraid WebGUI via Tailscale.
+unraid-tsidp:
+unraid-tsidp:
+unraid-tsidp:
+unraid-tsidp:
+unraid-tsidp:
+unraid-tsidp:
+unraid-tsidp: https://github.com/dkaser/unraid-tsidp
+unraid-tsidp:
