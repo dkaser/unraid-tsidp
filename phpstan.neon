@@ -17,4 +17,6 @@ parameters:
         - "#autov#"
         - "#parse_plugin_cfg#"
       identifier: function.notFound
+    -
+      identifier: missingType.iterableValue
   reportUnmatchedIgnoredErrors: false
