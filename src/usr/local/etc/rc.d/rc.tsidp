@@ -4,14 +4,14 @@
 start_tsidp() {
   if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/tsidp" 1> /dev/null 2> /dev/null ; then
     TSIDP_START_CMD="/usr/local/sbin/tsidp -use-local-tailscaled -port 444 -dir /boot/config/plugins/tsidp"
-    logger "Starting tsidp: $TSIDP_START_CMD"
+    logger "tsidp: starting: $TSIDP_START_CMD"
     mkdir -p /boot/config/plugins/tsidp
-    TAILSCALE_USE_WIP_CODE=1 $TSIDP_START_CMD 2>&1 >> /var/log/tsidp.log &
+    TAILSCALE_USE_WIP_CODE=1 $TSIDP_START_CMD >> /var/log/tsidp.log 2>&1 &
   fi
 }
 
 stop_tsidp() {
-  log "Stopping tsidp."
+  logger "tsidp: stopping"
   killall --ns $$ --wait tsidp 2> /dev/null
 }
 
