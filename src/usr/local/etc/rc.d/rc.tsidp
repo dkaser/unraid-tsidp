@@ -1,9 +1,28 @@
 #!/bin/sh
 # /etc/rc.d/rc.tsidp - start/stop the tsidp daemon
 
+# Source config and ensure TSIDP_PORT is set
+TSIDP_CFG="/boot/config/plugins/tsidp/tsidp.cfg"
+if [ -f "$TSIDP_CFG" ]; then
+  . "$TSIDP_CFG"
+fi
+
+if [ -z "$TSIDP_PORT" ]; then
+  # Find an unused TCP port (between 1025-65535)
+  for port in $(seq 1025 65535); do
+    if ! netstat -ltn | grep -q ":$port "; then
+      TSIDP_PORT=$port
+      mkdir -p /boot/config/plugins/tsidp
+      echo "TSIDP_PORT=$TSIDP_PORT" > "$TSIDP_CFG"
+      break
+    fi
+  done
+fi
+export TSIDP_PORT
+
 start_tsidp() {
   if ! /usr/bin/pgrep --ns $$ --euid root -f "^/usr/local/sbin/tsidp" 1> /dev/null 2> /dev/null ; then
-    TSIDP_START_CMD="/usr/local/sbin/tsidp -use-local-tailscaled -port 444 -dir /boot/config/plugins/tsidp"
+    TSIDP_START_CMD="/usr/local/sbin/tsidp -use-local-tailscaled -port $TSIDP_PORT -dir /boot/config/plugins/tsidp"
     logger "tsidp: starting: $TSIDP_START_CMD"
     mkdir -p /boot/config/plugins/tsidp
     TAILSCALE_USE_WIP_CODE=1 $TSIDP_START_CMD >> /var/log/tsidp.log 2>&1 &

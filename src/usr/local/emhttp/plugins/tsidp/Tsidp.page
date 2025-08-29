@@ -1,0 +1,25 @@
+Menu="Utilities"
+Title="Tailscale IDP"
+Icon="tsidp.png"
+---
+<?php
+require_once "/usr/local/emhttp/plugins/dynamix/include/Helpers.php";
+
+$cfg = parse_plugin_cfg("tsidp");
+?>
+
+<form method="POST" action="/update.php" target="progressFrame" markdown="1">
+<input type="hidden" name="#file" value="tsidp/tsidp.cfg">
+
+<!-- Basic text input example - uses htmlspecialchars to prevent XSS -->
+_(Port)_:
+: <input type="number" name="TSIDP_PORT" value="<?= htmlspecialchars($cfg['TSIDP_PORT'] ?? 9990); ?>" min="1" max="65535" step="1">
+
+<!-- Form action buttons - Apply saves changes, Done returns to previous page -->
+&nbsp;
+: <span class="buttons-spaced">
+    <input type="submit" value="_(Apply)_">
+    <input type="button" value="_(Done)_" onclick="done()">
+  </span>
+
+</form>
