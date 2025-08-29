@@ -1,0 +1,74 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN>
+
+<PLUGIN 
+  name="tsidp"
+  author="Derek Kaser"
+  version="0.0.1"
+  
+  pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
+  support="https://forums.unraid.net/"
+  
+  
+  
+>
+
+<CHANGES>
+<![CDATA[
+
+### 0.0.1
+
+- Test release
+
+
+For older releases, see https://github.com/dkaser/unraid-tsidp/releases
+]]>
+</CHANGES>
+
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-0.0.1-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/0.0.1/unraid-tsidp-0.0.1-noarch-1.txz</URL>
+<SHA256>584904252c45a0a978cbf34f03690eddc6111d9364d77b5f0b427d06d4642df2</SHA256>
+</FILE>
+
+<!--
+The 'install' script.
+-->
+<FILE Run="/bin/bash">
+<INLINE>
+<![CDATA[
+if [ -f /etc/rc.d/rc.tsidp ]; then
+  /etc/rc.d/rc.tsidp stop
+fi
+
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-0.0.1-noarch-1.txz
+
+/etc/rc.d/rc.tsidp start
+
+# cleanup old versions
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '0.0.1')
+
+echo ""
+echo "----------------------------------------------------"
+echo " tsidp has been installed."
+echo " Version: 0.0.1"
+echo "----------------------------------------------------"
+echo ""
+]]>
+</INLINE>
+</FILE>
+
+<!--
+The 'remove' script.
+-->
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+<![CDATA[
+removepkg unraid-tsidp
+
+rm -rf /usr/local/emhttp/plugins/tsidp
+rm -rf /boot/config/plugins/tsidp
+]]>
+</INLINE>
+</FILE>
+
+</PLUGIN>
