@@ -1,0 +1,8 @@
+{
+    "title": "Tailscale IDP",
+    "files": [
+        "/var/log/tsidp*"
+    ],
+    "system_diagnostics": true,
+    "upload": "https://plugin-diagnostics.edacerton.win/"
+}
