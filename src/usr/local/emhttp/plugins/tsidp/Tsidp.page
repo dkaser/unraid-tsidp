@@ -10,6 +10,7 @@ $cfg = parse_plugin_cfg("tsidp");
 
 <form method="POST" action="/update.php" target="progressFrame" markdown="1">
 <input type="hidden" name="#file" value="tsidp/tsidp.cfg">
+<input type="hidden" name="#command" value="/usr/local/emhttp/plugins/tsidp/restart.sh">
 
 <!-- Basic text input example - uses htmlspecialchars to prevent XSS -->
 _(Port)_:
