@@ -4,17 +4,21 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="0.0.1"
+  version="0.0.2"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/"
-  
+  min="7.0.0"
   
   
 >
 
 <CHANGES>
 <![CDATA[
+
+### 0.0.2
+
+- Test release
 
 ### 0.0.1
 
@@ -25,9 +29,40 @@ For older releases, see https://github.com/dkaser/unraid-tsidp/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-0.0.1-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/0.0.1/unraid-tsidp-0.0.1-noarch-1.txz</URL>
-<SHA256>584904252c45a0a978cbf34f03690eddc6111d9364d77b5f0b427d06d4642df2</SHA256>
+<!-- Check Unraid API compatibility -->
+<FILE Run="/usr/bin/php">
+<![CDATA[
+<?php
+$min_api_version = '4.18.2';
+
+exec('unraid-api version --json', $output, $return_var);
+
+// Check if the command was successful
+if ($return_var !== 0) {
+    echo "Failed to get Unraid API version\n";
+    exit(1);
+}
+
+// Check if the output is valid JSON
+$json = json_decode(implode("\n", $output), true);
+if (!is_array($json) || !isset($json['version'])) {
+    echo "Invalid JSON output\n";
+    exit(1);
+}
+
+echo "Unraid API version: " . $json['version'] . "\n";
+
+// If the version is less than the required one, fail the test
+if (version_compare($json['version'], $min_api_version, '<')) {
+    echo "Unraid API version is less than $min_api_version\n";
+    exit(1);
+}
+]]>
+</FILE>
+
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-0.0.2-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/0.0.2/unraid-tsidp-0.0.2-noarch-1.txz</URL>
+<SHA256>c3eb78cd80b5a903c08bd6ed8512ec5a136754161f3f1d53fefbb4809b7820fb</SHA256>
 </FILE>
 
 <!--
@@ -40,17 +75,17 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-0.0.1-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-0.0.2-noarch-1.txz
 
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '0.0.1')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '0.0.2')
 
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 0.0.1"
+echo " Version: 0.0.2"
 echo "----------------------------------------------------"
 echo ""
 ]]>
