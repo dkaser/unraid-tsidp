@@ -144,6 +144,8 @@ func main() {
 				log.Fatalf("getting user config directory: %v", err)
 			}
 			rootPath = filepath.Join(configDir, "tsidp")
+		} else {
+			rootPath = *flagDir
 		}
 
 		// tailscaled needs to be setting an HTTP header for funneled requests
