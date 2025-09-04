@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="0.0.2"
+  version="0.0.3"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/"
@@ -15,6 +15,10 @@
 
 <CHANGES>
 <![CDATA[
+
+### 0.0.3
+
+- Test release
 
 ### 0.0.2
 
@@ -31,6 +35,7 @@ For older releases, see https://github.com/dkaser/unraid-tsidp/releases
 
 <!-- Check Unraid API compatibility -->
 <FILE Run="/usr/bin/php">
+<INLINE>
 <![CDATA[
 <?php
 $min_api_version = '4.18.2';
@@ -58,11 +63,12 @@ if (version_compare($json['version'], $min_api_version, '<')) {
     exit(1);
 }
 ]]>
+</INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-0.0.2-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/0.0.2/unraid-tsidp-0.0.2-noarch-1.txz</URL>
-<SHA256>c3eb78cd80b5a903c08bd6ed8512ec5a136754161f3f1d53fefbb4809b7820fb</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-0.0.3-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/0.0.3/unraid-tsidp-0.0.3-noarch-1.txz</URL>
+<SHA256>03880dafdb9db483c6db4185007f4874ec920fd55587d3eac79362be434cae13</SHA256>
 </FILE>
 
 <!--
@@ -75,17 +81,17 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-0.0.2-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-0.0.3-noarch-1.txz
 
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '0.0.2')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '0.0.3')
 
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 0.0.2"
+echo " Version: 0.0.3"
 echo "----------------------------------------------------"
 echo ""
 ]]>
