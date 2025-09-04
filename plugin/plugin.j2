@@ -21,6 +21,37 @@ For older releases, see https://github.com/{{ env['GITHUB_REPOSITORY'] }}/releas
 ]]>
 </CHANGES>
 
+<!-- Check Unraid API compatibility -->
+<FILE Run="/usr/bin/php">
+<![CDATA[
+<?php
+$min_api_version = '{{ min_api }}';
+
+exec('unraid-api version --json', $output, $return_var);
+
+// Check if the command was successful
+if ($return_var !== 0) {
+    echo "Failed to get Unraid API version\n";
+    exit(1);
+}
+
+// Check if the output is valid JSON
+$json = json_decode(implode("\n", $output), true);
+if (!is_array($json) || !isset($json['version'])) {
+    echo "Invalid JSON output\n";
+    exit(1);
+}
+
+echo "Unraid API version: " . $json['version'] . "\n";
+
+// If the version is less than the required one, fail the test
+if (version_compare($json['version'], $min_api_version, '<')) {
+    echo "Unraid API version is less than $min_api_version\n";
+    exit(1);
+}
+]]>
+</FILE>
+
 <FILE Name="/boot/config/plugins/{{ name }}/{{ package_name }}-{{ env['PLUGIN_VERSION'] }}-noarch-1.txz">
 <URL>https://github.com/{{ env['GITHUB_REPOSITORY'] }}/releases/download/{{ env['PLUGIN_VERSION'] }}/{{ package_name }}-{{ env['PLUGIN_VERSION'] }}-noarch-1.txz</URL>
 <SHA256>{{ env['PLUGIN_CHECKSUM'] }}</SHA256>

@@ -1,7 +1,8 @@
 {
-  "name": "tsidp",
-  "package_name": "unraid-tsidp",
-  "author": "Derek Kaser",
-  "support": "https://forums.unraid.net/",
-  "min": "7.0.0"
+    "name": "tsidp",
+    "package_name": "unraid-tsidp",
+    "author": "Derek Kaser",
+    "support": "https://forums.unraid.net/",
+    "min": "7.0.0",
+    "min_api": "4.18.2"
 }
