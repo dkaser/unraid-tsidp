@@ -98,7 +98,7 @@ function createTsidpProvider(string $issuer): array
         'authorizationRules'    => [],
         'buttonText'            => '',
         'buttonVariant'         => 'outline',
-        'buttonStyle'           => 'background-color: #ffffff;',
+        'buttonStyle'           => 'background-color: #ffffff; color: #000000;',
         'buttonIcon'            => getTailscaleIcon(),
         'isProtected'           => false,
         'authorizationMode'     => 'simple',
