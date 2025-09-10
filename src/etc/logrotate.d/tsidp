@@ -1,0 +1,8 @@
+/var/log/tsidp*.log {
+   compress
+   daily
+   rotate 4
+   notifempty
+   missingok
+   copytruncate
+}

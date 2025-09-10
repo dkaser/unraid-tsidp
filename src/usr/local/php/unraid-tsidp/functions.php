@@ -20,6 +20,23 @@ function createApiKey(string $name): string|null
     return null;
 }
 
+function getTsidpPort(): int|null
+{
+    // Read TSIDP_PORT from tsidp.cfg
+    $cfgFile   = '/boot/config/plugins/tsidp/tsidp.cfg';
+    $tsidpPort = null;
+    if (file_exists($cfgFile)) {
+        $ini = parse_ini_file($cfgFile);
+        if (isset($ini['TSIDP_PORT'])) {
+            $tsidpPort = $ini['TSIDP_PORT'];
+        }
+    }
+    if ($tsidpPort === null || ! is_numeric($tsidpPort) || (int)$tsidpPort < 1 || (int)$tsidpPort > 65535) {
+        return null;
+    }
+    return (int)$tsidpPort;
+}
+
 function deleteApiKey(string $name): void
 {
     $cmd = escapeshellcmd("unraid-api apikey --delete --name {$name} --json 2>/dev/null");

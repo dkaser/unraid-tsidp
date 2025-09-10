@@ -71,6 +71,7 @@ fi
 
 upgradepkg --install-new /boot/config/plugins/{{ name }}/{{ package_name }}-{{ env['PLUGIN_VERSION'] }}-noarch-1.txz
 
+/etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions

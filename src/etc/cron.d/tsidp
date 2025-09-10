@@ -1,0 +1,1 @@
+*/5 * * * * /usr/local/php/unraid-tsidp/check-tsidp.php >> /var/log/tsidp-check.log 2>&1

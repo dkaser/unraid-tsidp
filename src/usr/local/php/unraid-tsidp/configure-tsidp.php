@@ -14,18 +14,10 @@ if ( ! $key) {
     safeExit(1, $keyName);
 }
 
-// Read TSIDP_PORT from tsidp.cfg
-$cfgFile   = '/boot/config/plugins/tsidp/tsidp.cfg';
-$tsidpPort = null;
-if (file_exists($cfgFile)) {
-    $ini = parse_ini_file($cfgFile);
-    if (isset($ini['TSIDP_PORT'])) {
-        $tsidpPort = $ini['TSIDP_PORT'];
-    }
-}
+$tsidpPort = getTsidpPort();
 if ( ! $tsidpPort) {
     logMessage("TSIDP_PORT not found in tsidp.cfg\n", 'ERROR');
-    safeExit(1, $keyName);
+    safeExit(1, 'tsidp');
 }
 
 // Get Tailscale status
@@ -60,6 +52,9 @@ updateHostsFile($fqdn, $ip);
 
 // Configure tsidp as an OIDC provider in Unraid
 $issuer = "https://{$fqdn}:{$tsidpPort}";
+
+// Store the issuer in /var/run/tsidp-issuer for use by other scripts
+file_put_contents('/var/run/tsidp-issuer', $issuer);
 
 // Query unified settings
 $unifiedQuery = 'query Unified { settings { unified { values } } }';
