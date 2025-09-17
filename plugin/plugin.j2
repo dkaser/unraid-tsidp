@@ -32,7 +32,7 @@ exec('unraid-api version --json', $output, $return_var);
 
 // Check if the command was successful
 if ($return_var !== 0) {
-    echo "Failed to get Unraid API version\n";
+    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
     exit(1);
 }
 
