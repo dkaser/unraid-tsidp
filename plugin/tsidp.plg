@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.09.10"
+  version="2025.09.17"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/"
@@ -16,17 +16,9 @@
 <CHANGES>
 <![CDATA[
 
-### 2025.09.10
+### 2025.09.17
 
-- fix: text on login page in dark mode
-
-### 2025.09.09
-
-- Added health monitor, checks status every 5 minutes
-
-### 0.0.4
-
-- Test release
+- Initial release.
 
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
@@ -38,7 +30,7 @@ For older releases, see https://github.com/dkaser/unraid-tsidp/releases
 <INLINE>
 <![CDATA[
 <?php
-$min_api_version = '4.18.2';
+$min_api_version = '4.19.0';
 
 exec('unraid-api version --json', $output, $return_var);
 
@@ -59,16 +51,16 @@ echo "Unraid API version: " . $json['version'] . "\n";
 
 // If the version is less than the required one, fail the test
 if (version_compare($json['version'], $min_api_version, '<')) {
-    echo "Unraid API version is less than $min_api_version\n";
+    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
     exit(1);
 }
 ]]>
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.10-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.10/unraid-tsidp-2025.09.10-noarch-1.txz</URL>
-<SHA256>70765bae6359e3de1b43fddf66efc5d033416d8e07d70ce6036ce6f35e17fb70</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.17-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.17/unraid-tsidp-2025.09.17-noarch-1.txz</URL>
+<SHA256>216fc7dc0b42b9d0a90d543edf0a326434c4508a14d71cad4b992d52be59b3e9</SHA256>
 </FILE>
 
 <!--
@@ -81,18 +73,32 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.10-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.17-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.10')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.17')
 
+echo ""
+echo "****************************************************"
+echo "* First Time Configuration Instructions            *"
+echo "****************************************************"
+echo ""
+echo "If you have not already done so, follow these steps to add allowed users:"
+echo ""
+echo "1. Go to Settings -> Management Access -> Unraid API Settings."
+echo "2. In the 'OIDC Providers' section, select 'Tailscale'."
+echo "3. Expand 'Authorization Rules'."
+echo "4. In 'Specific Email Addresses', add the Tailscale users that you want to allow access to the Unraid WebGUI."
+echo "5. Click 'Apply' to save the changes."
+echo ""
+echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.09.10"
+echo " Version: 2025.09.17"
 echo "----------------------------------------------------"
 echo ""
 ]]>
