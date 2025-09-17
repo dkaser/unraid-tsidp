@@ -47,7 +47,7 @@ echo "Unraid API version: " . $json['version'] . "\n";
 
 // If the version is less than the required one, fail the test
 if (version_compare($json['version'], $min_api_version, '<')) {
-    echo "Unraid API version is less than $min_api_version\n";
+    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
     exit(1);
 }
 ]]>
@@ -77,6 +77,20 @@ upgradepkg --install-new /boot/config/plugins/{{ name }}/{{ package_name }}-{{ e
 # cleanup old versions
 rm -f $(ls /boot/config/plugins/{{ name }}/{{ package_name }}-*.txz 2>/dev/null | grep -v '{{ env['PLUGIN_VERSION'] }}')
 
+echo ""
+echo "****************************************************"
+echo "* First Time Configuration Instructions            *"
+echo "****************************************************"
+echo ""
+echo "If you have not already done so, follow these steps to add allowed users:"
+echo ""
+echo "1. Go to Settings -> Management Access -> Unraid API Settings."
+echo "2. In the 'OIDC Providers' section, select 'Tailscale'."
+echo "3. Expand 'Authorization Rules'."
+echo "4. In 'Specific Email Addresses', add the Tailscale users that you want to allow access to the Unraid WebGUI."
+echo "5. Click 'Apply' to save the changes."
+echo ""
+echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " {{ name }} has been installed."
