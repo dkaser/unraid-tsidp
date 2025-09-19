@@ -21,35 +21,65 @@ For older releases, see https://github.com/{{ env['GITHUB_REPOSITORY'] }}/releas
 ]]>
 </CHANGES>
 
-<!-- Check Unraid API compatibility -->
 <FILE Run="/usr/bin/php">
 <INLINE>
 <![CDATA[
 <?php
-$min_api_version = '{{ min_api }}';
 
-exec('unraid-api version --json', $output, $return_var);
+function check_api() {
+    // Check unraid-api compatibility
+    $min_api_version = '{{ min_api }}';
 
-// Check if the command was successful
-if ($return_var !== 0) {
-    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    exec('unraid-api version --json', $output, $return_var);
+
+    // Check if the command was successful
+    if ($return_var !== 0) {
+        return "- Unraid API version is less than $min_api_version. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    }
+
+    // Check if the output is valid JSON
+    $json = json_decode(implode("\n", $output), true);
+    if (!is_array($json) || !isset($json['version'])) {
+        return "- Invalid output from Unraid API version command.\n";
+    }
+
+    // If the version is less than the required one, fail the test
+    if (version_compare($json['version'], $min_api_version, '<')) {
+        return "- Unraid API version is less than $min_api_version. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    }
+    return "";
+}
+
+function check_tailscale() {
+    // Check if HTTPS is enabled for the tailnet via "tailscale status"
+    exec('tailscale status -json', $output, $return_var);
+    if ($return_var !== 0) {
+        return "- Failed to execute 'tailscale status'. Please ensure Tailscale is installed and running.\n";
+    }
+    
+    $json = json_decode(implode("\n", $output), true);
+    if (!is_array($json)) {
+        return "- Invalid JSON output from 'tailscale status'\n";
+    }
+    
+
+    // Check to see if $json['CertDomains'] is an array and contains at least one entry
+    if (!isset($json['CertDomains']) || !is_array($json['CertDomains']) || count($json['CertDomains']) === 0) {
+        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console.\n";
+    }
+    return "";
+}
+
+$problems = "";
+$problems .= check_api();
+$problems .= check_tailscale();
+if ($problems !== "") {
+    echo "The following issues were detected:\n";
+    echo $problems;
+    echo "\nPlease resolve these issues before installing this plugin.\n";
     exit(1);
 }
 
-// Check if the output is valid JSON
-$json = json_decode(implode("\n", $output), true);
-if (!is_array($json) || !isset($json['version'])) {
-    echo "Invalid JSON output\n";
-    exit(1);
-}
-
-echo "Unraid API version: " . $json['version'] . "\n";
-
-// If the version is less than the required one, fail the test
-if (version_compare($json['version'], $min_api_version, '<')) {
-    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
-    exit(1);
-}
 ]]>
 </INLINE>
 </FILE>
