@@ -2,7 +2,7 @@
     "name": "tsidp",
     "package_name": "unraid-tsidp",
     "author": "Derek Kaser",
-    "support": "https://forums.unraid.net/",
+    "support": "https://forums.unraid.net/topic/193586-plugin-tailscale-idp/",
     "min": "7.0.0",
     "min_api": "4.19.0"
 }
