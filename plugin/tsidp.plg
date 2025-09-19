@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.09.18"
+  version="2025.09.18.1"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
@@ -16,6 +16,10 @@
 <CHANGES>
 <![CDATA[
 
+### 2025.09.18.1
+
+- feat: improved installation checks
+
 ### 2025.09.18
 
 - fix: link to support thread on forums
@@ -24,51 +28,77 @@
 
 - Better error message if Unraid API is not installed.
 
-### 2025.09.17
-
-- Initial release.
-
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
 ]]>
 </CHANGES>
 
-<!-- Check Unraid API compatibility -->
 <FILE Run="/usr/bin/php">
 <INLINE>
 <![CDATA[
 <?php
-$min_api_version = '4.19.0';
 
-exec('unraid-api version --json', $output, $return_var);
+function check_api() {
+    // Check unraid-api compatibility
+    $min_api_version = '4.19.0';
 
-// Check if the command was successful
-if ($return_var !== 0) {
-    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    exec('unraid-api version --json', $output, $return_var);
+
+    // Check if the command was successful
+    if ($return_var !== 0) {
+        return "- Unraid API version is less than $min_api_version. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    }
+
+    // Check if the output is valid JSON
+    $json = json_decode(implode("\n", $output), true);
+    if (!is_array($json) || !isset($json['version'])) {
+        return "- Invalid output from Unraid API version command.\n";
+    }
+
+    // If the version is less than the required one, fail the test
+    if (version_compare($json['version'], $min_api_version, '<')) {
+        return "- Unraid API version is less than $min_api_version. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
+    }
+    return "";
+}
+
+function check_tailscale() {
+    // Check if HTTPS is enabled for the tailnet via "tailscale status"
+    exec('tailscale status -json', $output, $return_var);
+    if ($return_var !== 0) {
+        return "- Failed to execute 'tailscale status'. Please ensure Tailscale is installed and running.\n";
+    }
+    
+    $json = json_decode(implode("\n", $output), true);
+    if (!is_array($json)) {
+        return "- Invalid JSON output from 'tailscale status'\n";
+    }
+    
+
+    // Check to see if $json['CertDomains'] is an array and contains at least one entry
+    if (!isset($json['CertDomains']) || !is_array($json['CertDomains']) || count($json['CertDomains']) === 0) {
+        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console.\n";
+    }
+    return "";
+}
+
+$problems = "";
+$problems .= check_api();
+$problems .= check_tailscale();
+if ($problems !== "") {
+    echo "The following issues were detected:\n";
+    echo $problems;
+    echo "\nPlease resolve these issues before installing this plugin.\n";
     exit(1);
 }
 
-// Check if the output is valid JSON
-$json = json_decode(implode("\n", $output), true);
-if (!is_array($json) || !isset($json['version'])) {
-    echo "Invalid JSON output\n";
-    exit(1);
-}
-
-echo "Unraid API version: " . $json['version'] . "\n";
-
-// If the version is less than the required one, fail the test
-if (version_compare($json['version'], $min_api_version, '<')) {
-    echo "Unraid API version is less than $min_api_version\n. Please update to Unraid 7.2beta3 or later, or install the latest Unraid Connect plugin.\n";
-    exit(1);
-}
 ]]>
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.18-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.18/unraid-tsidp-2025.09.18-noarch-1.txz</URL>
-<SHA256>129e61ec405bf609fd7f8ab52b5f508c79f291d2fd26b6c005ba469ab6cd685b</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.18.1-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.18.1/unraid-tsidp-2025.09.18.1-noarch-1.txz</URL>
+<SHA256>b7c8428c4c2ca9f82df0613349ecf98ccba055bca1cfb945f1284e81fb143e67</SHA256>
 </FILE>
 
 <!--
@@ -81,13 +111,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.18-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.18.1-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.18')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.18.1')
 
 echo ""
 echo "****************************************************"
@@ -106,7 +136,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.09.18"
+echo " Version: 2025.09.18.1"
 echo "----------------------------------------------------"
 echo ""
 ]]>
