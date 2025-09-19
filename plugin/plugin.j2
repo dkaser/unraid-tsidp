@@ -56,7 +56,7 @@ function check_tailscale() {
     if ($return_var !== 0) {
         return "- Failed to execute 'tailscale status'. Please ensure Tailscale is installed and running.\n";
     }
-    
+
     $json = json_decode(implode("\n", $output), true);
     if (!is_array($json)) {
         return "- Invalid JSON output from 'tailscale status'\n";
@@ -65,7 +65,7 @@ function check_tailscale() {
 
     // Check to see if $json['CertDomains'] is an array and contains at least one entry
     if (!isset($json['CertDomains']) || !is_array($json['CertDomains']) || count($json['CertDomains']) === 0) {
-        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console.\n";
+        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console: https://login.tailscale.com/admin/dns \n";
     }
     return "";
 }
