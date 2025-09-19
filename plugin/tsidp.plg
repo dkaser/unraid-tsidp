@@ -4,10 +4,10 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.09.17.1"
+  version="2025.09.18"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
-  support="https://forums.unraid.net/"
+  support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
   min="7.0.0"
   
   
@@ -15,6 +15,10 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2025.09.18
+
+- fix: link to support thread on forums
 
 ### 2025.09.17.1
 
@@ -62,9 +66,9 @@ if (version_compare($json['version'], $min_api_version, '<')) {
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.17.1-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.17.1/unraid-tsidp-2025.09.17.1-noarch-1.txz</URL>
-<SHA256>8edb2dca81ef3b0ce11dadcb360157dea2321041b41c1322f3480f98f423c84f</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.18-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.18/unraid-tsidp-2025.09.18-noarch-1.txz</URL>
+<SHA256>129e61ec405bf609fd7f8ab52b5f508c79f291d2fd26b6c005ba469ab6cd685b</SHA256>
 </FILE>
 
 <!--
@@ -77,13 +81,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.17.1-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.18-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.17.1')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.18')
 
 echo ""
 echo "****************************************************"
@@ -102,7 +106,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.09.17.1"
+echo " Version: 2025.09.18"
 echo "----------------------------------------------------"
 echo ""
 ]]>
