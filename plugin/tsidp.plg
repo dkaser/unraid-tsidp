@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.09.18.1"
+  version="2025.09.23"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
@@ -16,6 +16,12 @@
 <CHANGES>
 <![CDATA[
 
+### 2025.09.23
+
+### 🚀 Features
+
+- Update tsidp to latest version
+
 ### 2025.09.18.1
 
 - feat: improved installation checks
@@ -23,10 +29,6 @@
 ### 2025.09.18
 
 - fix: link to support thread on forums
-
-### 2025.09.17.1
-
-- Better error message if Unraid API is not installed.
 
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
@@ -68,7 +70,7 @@ function check_tailscale() {
     if ($return_var !== 0) {
         return "- Failed to execute 'tailscale status'. Please ensure Tailscale is installed and running.\n";
     }
-    
+
     $json = json_decode(implode("\n", $output), true);
     if (!is_array($json)) {
         return "- Invalid JSON output from 'tailscale status'\n";
@@ -77,7 +79,7 @@ function check_tailscale() {
 
     // Check to see if $json['CertDomains'] is an array and contains at least one entry
     if (!isset($json['CertDomains']) || !is_array($json['CertDomains']) || count($json['CertDomains']) === 0) {
-        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console.\n";
+        return "- HTTPS is not enabled for the tailnet. Please enable HTTPS in the Tailscale admin console: https://login.tailscale.com/admin/dns \n";
     }
     return "";
 }
@@ -96,9 +98,9 @@ if ($problems !== "") {
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.18.1-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.18.1/unraid-tsidp-2025.09.18.1-noarch-1.txz</URL>
-<SHA256>b7c8428c4c2ca9f82df0613349ecf98ccba055bca1cfb945f1284e81fb143e67</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.23-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.23/unraid-tsidp-2025.09.23-noarch-1.txz</URL>
+<SHA256>f9d27ce3410e8d81da6abbeeabc7956cca2562cc859e503d37e38265a7769aed</SHA256>
 </FILE>
 
 <!--
@@ -111,13 +113,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.18.1-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.23-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.18.1')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.23')
 
 echo ""
 echo "****************************************************"
@@ -136,7 +138,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.09.18.1"
+echo " Version: 2025.09.23"
 echo "----------------------------------------------------"
 echo ""
 ]]>
