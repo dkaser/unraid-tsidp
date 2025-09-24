@@ -1,0 +1,3 @@
+[submodule "tsidp"]
+	path = tsidp
+	url = https://github.com/tailscale/tsidp.git
