@@ -34,28 +34,40 @@ if ( ! $tailscaleInfo) {
 $identFile   = '/boot/config/ident.cfg';
 $webguiPort  = 80;
 $webguiProto = 'http';
+
+// "{$webguiProto}://{$tailscaleInfo->fqdn}{$webguiPort}/graphql/api/auth/oidc/callback"
+$redirect_uris = [];
+
 if (file_exists($identFile)) {
     $identCfg = parse_ini_file($identFile);
     if ($identCfg !== false) {
-        if (isset($identCfg['USE_SSL']) && strtolower($identCfg['USE_SSL']) === 'yes' && isset($identCfg['PORTSSL']) && is_numeric($identCfg['PORTSSL'])) {
-            $webguiPort  = (int)$identCfg['PORTSSL'];
-            $webguiProto = 'https';
-        } elseif (isset($identCfg['PORT']) && is_numeric($identCfg['PORT'])) {
-            $webguiPort = (int)$identCfg['PORT'];
+        if (isset($identCfg['PORTSSL']) && is_numeric($identCfg['PORTSSL'])) {
+            $webguiPort      = (int)$identCfg['PORTSSL'];
+            $redirect_uris[] = "https://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback";
+            if ($webguiPort == 443) {
+                $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+            }
+        } else {
+            $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+        }
+        if (isset($identCfg['PORT']) && is_numeric($identCfg['PORT'])) {
+            $webguiPort      = (int)$identCfg['PORT'];
+            $redirect_uris[] = "http://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback";
+            if ($webguiPort == 80) {
+                $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+            }
+        } else {
+            $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
         }
     } else {
-        logMessage("Failed to parse ident.cfg, defaulting to HTTP port 80\n", 'WARNING');
+        logMessage("Failed to parse ident.cfg, defaulting to default HTTP(s) ports\n", 'WARNING');
+        $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+        $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
     }
 } else {
-    logMessage("ident.cfg not found, defaulting to HTTP port 80\n", 'WARNING');
-}
-
-if ($webguiPort == 80 && $webguiProto == 'http') {
-    $webguiPort = "";
-} elseif ($webguiPort == 443 && $webguiProto == 'https') {
-    $webguiPort = "";
-} else {
-    $webguiPort = ":{$webguiPort}";
+    logMessage("ident.cfg not found, defaulting to default HTTP(s) ports\n", 'WARNING');
+    $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+    $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
 }
 
 // Create a random client secret
@@ -72,11 +84,9 @@ if (isset($clients['unraidgui']['client_secret']) && is_string($clients['unraidg
 $clients['unraidgui'] = [
     "client_id"     => "unraidgui",
     "client_secret" => $clientSecret,
-    "redirect_uris" => [
-        "{$webguiProto}://{$tailscaleInfo->fqdn}{$webguiPort}/graphql/api/auth/oidc/callback"
-    ],
-    "created_at"   => "0001-01-01T00:00:00Z",
-    "redirect_uri" => "{$webguiProto}://{$tailscaleInfo->fqdn}{$webguiPort}/graphql/api/auth/oidc/callback"
+    "redirect_uris" => $redirect_uris,
+    "created_at"    => "0001-01-01T00:00:00Z",
+    "redirect_uri"  => "{$webguiProto}://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback"
 ];
 
 $clientsJson = json_encode($clients, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
