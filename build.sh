@@ -2,6 +2,7 @@
 set -euo pipefail
 
 mkdir -p ./src/usr/local/sbin
+rm -f ./src/usr/local/sbin/tsidp
 cd tsidp
 
 # Build static linux/amd64 binary
