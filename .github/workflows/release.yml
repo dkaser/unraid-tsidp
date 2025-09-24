@@ -17,5 +17,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           go_dir: "tsidp"
           build_script: |
-            cd tsidp
             ./build.sh
