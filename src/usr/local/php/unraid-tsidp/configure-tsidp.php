@@ -37,11 +37,10 @@ $issuer = "https://{$tailscaleInfo->fqdn}:{$tsidpPort}";
 file_put_contents('/var/run/tsidp-issuer', $issuer);
 
 $clients = getClientsFile();
-if ( ! isset($clients['tsidp']) || ! isset($clients['tsidp']['client_id']) || ! isset($clients['tsidp']['client_secret']) || ! is_string($clients['tsidp']['client_id'])) {
+if ( ! isset($clients['unraidgui']) || ! isset($clients['unraidgui']['client_id']) || ! isset($clients['unraidgui']['client_secret']) || ! is_string($clients['unraidgui']['client_id'])) {
     logMessage("Invalid clients file format\n", 'ERROR');
     safeExit(1, $keyName);
 }
-logMessage("Using tsidp client_id: {$clients['tsidp']['client_id']}");
 
 // Query unified settings
 $unifiedQuery = 'query Unified { settings { unified { values } } }';
@@ -72,15 +71,15 @@ foreach ($settings['sso']['providers'] as &$prov) {
             $modified       = true;
         }
 
-        if ($prov['clientId'] !== $clients['tsidp']['client_id']) {
+        if ($prov['clientId'] !== $clients['unraidgui']['client_id']) {
             logMessage("Updating tsidp client_id");
-            $prov['clientId'] = $clients['tsidp']['client_id'];
+            $prov['clientId'] = $clients['unraidgui']['client_id'];
             $modified         = true;
         }
 
-        if ($prov['clientSecret'] !== $clients['tsidp']['client_secret']) {
+        if ($prov['clientSecret'] !== $clients['unraidgui']['client_secret']) {
             logMessage("Updating tsidp client_secret");
-            $prov['clientSecret'] = $clients['tsidp']['client_secret'];
+            $prov['clientSecret'] = $clients['unraidgui']['client_secret'];
             $modified             = true;
         }
 
@@ -95,7 +94,7 @@ foreach ($settings['sso']['providers'] as &$prov) {
 
 if ( ! $exists) {
     logMessage("Adding tsidp provider");
-    $settings['sso']['providers'][] = createTsidpProvider($issuer, $clients['tsidp']['client_id'], $clients['tsidp']['client_secret']);
+    $settings['sso']['providers'][] = createTsidpProvider($issuer, $clients['unraidgui']['client_id'], $clients['unraidgui']['client_secret']);
 }
 
 // Update settings

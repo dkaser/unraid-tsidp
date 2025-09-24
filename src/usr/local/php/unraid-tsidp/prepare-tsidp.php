@@ -43,17 +43,17 @@ if ($webguiPort == 80 && $webguiProto == 'http') {
 
 // Create a random client secret
 $clientSecretLength = 32;
-if (isset($clients['tsidp']['client_secret']) && is_string($clients['tsidp']['client_secret']) && strlen($clients['tsidp']['client_secret']) >= $clientSecretLength) {
+if (isset($clients['unraidgui']['client_secret']) && is_string($clients['unraidgui']['client_secret']) && strlen($clients['unraidgui']['client_secret']) >= $clientSecretLength) {
     // Reuse existing client secret if it meets the length requirement
-    $clientSecret = $clients['tsidp']['client_secret'];
+    $clientSecret = $clients['unraidgui']['client_secret'];
 } else {
-    logMessage("Generating new tsidp client_secret\n");
+    logMessage("Generating new unraidgui client_secret\n");
     $clientSecret = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, $clientSecretLength);
 }
 
-// Update the tsidp client entry
-$clients['tsidp'] = [
-    "client_id"     => "tsidp",
+// Update the unraidgui client entry
+$clients['unraidgui'] = [
+    "client_id"     => "unraidgui",
     "client_secret" => $clientSecret,
     "redirect_uris" => [
         "{$webguiProto}://{$tailscaleInfo->fqdn}{$webguiPort}/graphql/api/auth/oidc/callback"
