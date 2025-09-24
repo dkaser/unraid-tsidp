@@ -25,6 +25,15 @@ start_tsidp() {
     TSIDP_START_CMD="/usr/local/sbin/tsidp -use-local-tailscaled -port $TSIDP_PORT -dir /boot/config/plugins/tsidp"
     logger "tsidp: starting: $TSIDP_START_CMD"
     mkdir -p /boot/config/plugins/tsidp
+
+    /usr/local/php/unraid-tsidp/prepare-tsidp.php >> /var/log/tsidp-configure.log 2>&1
+    if [ $? -ne 0 ]; then
+      logger "tsidp: prepare-tsidp.php failed, not starting tsidp"
+      return 1
+    fi
+
+    sleep 1
+
     TAILSCALE_USE_WIP_CODE=1 $TSIDP_START_CMD >> /var/log/tsidp.log 2>&1 &
     sleep 1
     if [ -S /var/run/unraid-api.sock ]; then

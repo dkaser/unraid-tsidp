@@ -1,10 +1,43 @@
 <?php
 
+class TailscaleInfo
+{
+    public string $fqdn;
+    public string $ip;
+
+    public function __construct(string $fqdn, string $ip)
+    {
+        $this->fqdn = $fqdn;
+        $this->ip   = $ip;
+    }
+}
+
 function logMessage(string $message, string $level = 'INFO', array $context = []): void
 {
     $timestamp  = date('Y-m-d H:i:s');
     $contextStr = $context ? json_encode($context) : '';
     echo "[{$timestamp}] {$level}: {$message} {$contextStr}\n";
+}
+
+function getClientsFile(): array
+{
+    $clientsFile = '/boot/config/plugins/tsidp/oidc-funnel-clients.json';
+    if (file_exists($clientsFile)) {
+        $clientsJson = file_get_contents($clientsFile);
+        if ($clientsJson === false) {
+            logMessage("Failed to read existing clients file, initializing empty clients list\n", 'WARNING');
+            $clients = [];
+        } else {
+            $clients = (array)json_decode($clientsJson, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                logMessage("Existing clients file is invalid JSON, initializing empty clients list\n", 'WARNING');
+                $clients = [];
+            }
+        }
+    } else {
+        $clients = [];
+    }
+    return $clients;
 }
 
 function createApiKey(string $name): string|null
@@ -18,6 +51,36 @@ function createApiKey(string $name): string|null
         }
     }
     return null;
+}
+
+function getTailscaleInfo(): TailscaleInfo|null
+{
+    // Get Tailscale status
+    $tailscaleJson = shell_exec('tailscale status -json 2>/dev/null');
+    if ( ! is_string($tailscaleJson) || $tailscaleJson === '') {
+        logMessage("Failed to get tailscale status\n", 'ERROR');
+        return null;
+    }
+    $tailscale = json_decode($tailscaleJson, true);
+    if ( ! is_array($tailscale) || ! isset($tailscale['Self']) || ! is_array($tailscale['Self']) || ! isset($tailscale['Self']['DNSName']) || ! is_string($tailscale['Self']['DNSName'])) {
+        logMessage("Self.DNSName not found in tailscale status\n", 'ERROR');
+        return null;
+    }
+    $fqdn = rtrim((string)$tailscale['Self']['DNSName'], '.');
+    $ip   = null;
+    if (isset($tailscale['Self']['TailscaleIPs']) && is_array($tailscale['Self']['TailscaleIPs'])) {
+        foreach ($tailscale['Self']['TailscaleIPs'] as $candidateIp) {
+            if (is_string($candidateIp) && filter_var($candidateIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $ip = $candidateIp;
+                break;
+            }
+        }
+    }
+    if ( ! $ip) {
+        logMessage("No IPv4 address found in Self.TailscaleIPs", 'ERROR');
+        return null;
+    }
+    return new TailscaleInfo($fqdn, $ip);
 }
 
 function getTsidpPort(): int|null
@@ -85,13 +148,13 @@ function graphql(string $query, array $variables = [], string $key = ""): array|
     return is_string($result) ? (array)json_decode($result, true) : null;
 }
 
-function createTsidpProvider(string $issuer): array
+function createTsidpProvider(string $issuer, string $clientId, string $clientSecret): array
 {
     return [
         'id'                    => 'tsidp',
         'name'                  => 'Tailscale',
-        'clientId'              => 'tailscale',
-        'clientSecret'          => '',
+        'clientId'              => $clientId,
+        'clientSecret'          => $clientSecret,
         'issuer'                => $issuer,
         'scopes'                => ['openid', 'profile', 'email'],
         'authorizationRuleMode' => 'or',

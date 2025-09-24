@@ -20,41 +20,28 @@ if ( ! $tsidpPort) {
     safeExit(1, 'tsidp');
 }
 
-// Get Tailscale status
-$tailscaleJson = shell_exec('tailscale status -json 2>/dev/null');
-if ( ! is_string($tailscaleJson) || $tailscaleJson === '') {
-    logMessage("Failed to get tailscale status\n", 'ERROR');
-    safeExit(1, $keyName);
-}
-$tailscale = json_decode($tailscaleJson, true);
-if ( ! is_array($tailscale) || ! isset($tailscale['Self']) || ! is_array($tailscale['Self']) || ! isset($tailscale['Self']['DNSName']) || ! is_string($tailscale['Self']['DNSName'])) {
-    logMessage("Self.DNSName not found in tailscale status\n", 'ERROR');
-    safeExit(1, $keyName);
-}
-
 // Add the current tailscale DNS name and IP to /etc/hosts if not already present
 // This ensures that Unraid can resolve the tsidp URL even if Tailscale DNS is not enabled.
-$fqdn = rtrim((string)$tailscale['Self']['DNSName'], '.');
-$ip   = null;
-if (isset($tailscale['Self']['TailscaleIPs']) && is_array($tailscale['Self']['TailscaleIPs'])) {
-    foreach ($tailscale['Self']['TailscaleIPs'] as $candidateIp) {
-        if (is_string($candidateIp) && filter_var($candidateIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $ip = $candidateIp;
-            break;
-        }
-    }
-}
-if ( ! $ip) {
-    logMessage("No IPv4 address found in Self.TailscaleIPs", 'ERROR');
+$tailscaleInfo = getTailscaleInfo();
+if ( ! $tailscaleInfo) {
+    logMessage("Failed to get Tailscale info\n", 'ERROR');
     safeExit(1, $keyName);
 }
-updateHostsFile($fqdn, $ip);
+
+updateHostsFile($tailscaleInfo->fqdn, $tailscaleInfo->ip);
 
 // Configure tsidp as an OIDC provider in Unraid
-$issuer = "https://{$fqdn}:{$tsidpPort}";
+$issuer = "https://{$tailscaleInfo->fqdn}:{$tsidpPort}";
 
 // Store the issuer in /var/run/tsidp-issuer for use by other scripts
 file_put_contents('/var/run/tsidp-issuer', $issuer);
+
+$clients = getClientsFile();
+if ( ! isset($clients['tsidp']) || ! isset($clients['tsidp']['client_id']) || ! isset($clients['tsidp']['client_secret']) || ! is_string($clients['tsidp']['client_id'])) {
+    logMessage("Invalid clients file format\n", 'ERROR');
+    safeExit(1, $keyName);
+}
+logMessage("Using tsidp client_id: {$clients['tsidp']['client_id']}");
 
 // Query unified settings
 $unifiedQuery = 'query Unified { settings { unified { values } } }';
@@ -68,7 +55,7 @@ if ( ! is_array($settings) || ! isset($settings['sso']) || ! is_array($settings[
     logMessage("Invalid unified settings format\n", 'ERROR');
     safeExit(1, $keyName);
 }
-
+logMessage("Current SSO settings retrieved.");
 // Check for tsidp provider
 if ( ! isset($settings['sso']['providers']) || ! is_array($settings['sso']['providers'])) {
     $settings['sso']['providers'] = [];
@@ -76,21 +63,39 @@ if ( ! isset($settings['sso']['providers']) || ! is_array($settings['sso']['prov
 $exists = false;
 foreach ($settings['sso']['providers'] as &$prov) {
     if (is_array($prov) && isset($prov['id']) && $prov['id'] === 'tsidp') {
-        $exists = true;
-        if ($prov['issuer'] === $issuer) {
-            logMessage("tsidp provider already exists and configured correctly. No changes made.");
+        $exists   = true;
+        $modified = false;
+
+        if ($prov['issuer'] !== $issuer) {
+            logMessage("Updating tsidp URL");
+            $prov['issuer'] = $issuer;
+            $modified       = true;
+        }
+
+        if ($prov['clientId'] !== $clients['tsidp']['client_id']) {
+            logMessage("Updating tsidp client_id");
+            $prov['clientId'] = $clients['tsidp']['client_id'];
+            $modified         = true;
+        }
+
+        if ($prov['clientSecret'] !== $clients['tsidp']['client_secret']) {
+            logMessage("Updating tsidp client_secret");
+            $prov['clientSecret'] = $clients['tsidp']['client_secret'];
+            $modified             = true;
+        }
+
+        if ( ! $modified) {
+            logMessage("tsidp provider configured correctly, no changes needed.");
             safeExit(0, $keyName);
         }
 
-        logMessage("Updating tsidp URL");
-        $prov['issuer'] = $issuer;
         break;
     }
 }
 
 if ( ! $exists) {
     logMessage("Adding tsidp provider");
-    $settings['sso']['providers'][] = createTsidpProvider($issuer);
+    $settings['sso']['providers'][] = createTsidpProvider($issuer, $clients['tsidp']['client_id'], $clients['tsidp']['client_secret']);
 }
 
 // Update settings
@@ -103,4 +108,4 @@ if ( ! $updateResp || ! isset($updateResp['data']['updateSettings'])) {
 }
 
 logMessage("tsidp provider configured successfully.");
-deleteApiKey($keyName);
+safeExit(0, $keyName);
