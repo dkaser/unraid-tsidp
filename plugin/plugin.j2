@@ -70,6 +70,11 @@ function check_tailscale() {
     return "";
 }
 
+// Check to see if /var/local/emhttp/var.ini exists. If it doesn't, we're pre-boot and should skip the checks.
+if (!file_exists('/var/local/emhttp/var.ini')) {
+    exit(0);
+}
+
 $problems = "";
 $problems .= check_api();
 $problems .= check_tailscale();
