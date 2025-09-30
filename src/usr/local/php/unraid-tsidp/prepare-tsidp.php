@@ -83,6 +83,8 @@ foreach ($allowedHosts as $host) {
     }
 }
 
+$redirect_uris = array_unique($redirect_uris);
+
 // Create a random client secret
 $clientSecretLength = 32;
 if (isset($clients['unraidgui']['client_secret']) && is_string($clients['unraidgui']['client_secret']) && strlen($clients['unraidgui']['client_secret']) >= $clientSecretLength) {
