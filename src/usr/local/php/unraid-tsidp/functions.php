@@ -100,17 +100,31 @@ function getTailscaleInfo(): TailscaleInfo|null
     return new TailscaleInfo($fqdn, $ip);
 }
 
+function getConfigValue(string $key): string|null
+{
+    $cfgFile = '/boot/config/plugins/tsidp/tsidp.cfg';
+    if (file_exists($cfgFile)) {
+        $ini = parse_ini_file($cfgFile);
+        if (isset($ini[$key]) && is_string($ini[$key])) {
+            return $ini[$key];
+        }
+    }
+    return null;
+}
+
+function getAllowedHosts(): array
+{
+    $allowedHosts = getConfigValue('ALLOWED_HOSTS');
+    if ($allowedHosts === null || trim($allowedHosts) === '') {
+        return [];
+    }
+    return array_filter(array_map('trim', explode(' ', $allowedHosts)));
+}
+
 function getTsidpPort(): int|null
 {
     // Read TSIDP_PORT from tsidp.cfg
-    $cfgFile   = '/boot/config/plugins/tsidp/tsidp.cfg';
-    $tsidpPort = null;
-    if (file_exists($cfgFile)) {
-        $ini = parse_ini_file($cfgFile);
-        if (isset($ini['TSIDP_PORT'])) {
-            $tsidpPort = $ini['TSIDP_PORT'];
-        }
-    }
+    $tsidpPort = getConfigValue('TSIDP_PORT');
     if ($tsidpPort === null || ! is_numeric($tsidpPort) || (int)$tsidpPort < 1 || (int)$tsidpPort > 65535) {
         return null;
     }
