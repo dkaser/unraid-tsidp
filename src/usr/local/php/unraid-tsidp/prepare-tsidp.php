@@ -27,47 +27,60 @@ $clients = getClientsFile();
 
 $tailscaleInfo = getTailscaleInfo();
 if ( ! $tailscaleInfo) {
-    logMessage("Failed to get Tailscale info\n", 'ERROR');
+    logMessage("Failed to get Tailscale info", 'ERROR');
     exit(1);
 }
 
-$identFile   = '/boot/config/ident.cfg';
-$webguiPort  = 80;
-$webguiProto = 'http';
-
-// "{$webguiProto}://{$tailscaleInfo->fqdn}{$webguiPort}/graphql/api/auth/oidc/callback"
-$redirect_uris = [];
+$identFile = '/boot/config/ident.cfg';
+$httpPort  = 80;
+$httpsPort = 443;
 
 if (file_exists($identFile)) {
     $identCfg = parse_ini_file($identFile);
     if ($identCfg !== false) {
         if (isset($identCfg['PORTSSL']) && is_numeric($identCfg['PORTSSL'])) {
-            $webguiPort      = (int)$identCfg['PORTSSL'];
-            $redirect_uris[] = "https://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback";
-            if ($webguiPort == 443) {
-                $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
-            }
-        } else {
-            $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+            $httpsPort = (int)$identCfg['PORTSSL'];
         }
         if (isset($identCfg['PORT']) && is_numeric($identCfg['PORT'])) {
-            $webguiPort      = (int)$identCfg['PORT'];
-            $redirect_uris[] = "http://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback";
-            if ($webguiPort == 80) {
-                $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
-            }
-        } else {
-            $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+            $httpPort = (int)$identCfg['PORT'];
         }
     } else {
-        logMessage("Failed to parse ident.cfg, defaulting to default HTTP(s) ports\n", 'WARNING');
-        $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
-        $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+        logMessage("Failed to parse ident.cfg, using default ports", 'WARNING');
     }
 } else {
-    logMessage("ident.cfg not found, defaulting to default HTTP(s) ports\n", 'WARNING');
-    $redirect_uris[] = "http://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
-    $redirect_uris[] = "https://{$tailscaleInfo->fqdn}/graphql/api/auth/oidc/callback";
+    logMessage("ident.cfg not found, using default ports", 'WARNING');
+}
+
+logMessage("Using HTTP port: {$httpPort}, HTTPS port: {$httpsPort}");
+
+$allowedHosts   = getAllowedHosts();
+$allowedHosts[] = $tailscaleInfo->fqdn;
+$redirect_uris  = [];
+
+foreach ($allowedHosts as $host) {
+    $host = trim($host);
+    if ($host === '') {
+        continue;
+    }
+
+    // Validate the hostname
+    if ( ! filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || filter_var($host, FILTER_VALIDATE_IP)) {
+        logMessage("Skipping invalid hostname: {$host}", 'WARNING');
+        continue;
+    }
+
+    logMessage("Processing allowed host: {$host}");
+
+    // HTTP redirect URI
+    $redirect_uris[] = "http://{$host}:{$httpPort}/graphql/api/auth/oidc/callback";
+    if ($httpPort === 80) {
+        $redirect_uris[] = "http://{$host}/graphql/api/auth/oidc/callback";
+    }
+    // HTTPS redirect URI
+    $redirect_uris[] = "https://{$host}:{$httpsPort}/graphql/api/auth/oidc/callback";
+    if ($httpsPort === 443) {
+        $redirect_uris[] = "https://{$host}/graphql/api/auth/oidc/callback";
+    }
 }
 
 // Create a random client secret
@@ -86,19 +99,19 @@ $clients['unraidgui'] = [
     "client_secret" => $clientSecret,
     "redirect_uris" => $redirect_uris,
     "created_at"    => "0001-01-01T00:00:00Z",
-    "redirect_uri"  => "{$webguiProto}://{$tailscaleInfo->fqdn}:{$webguiPort}/graphql/api/auth/oidc/callback"
+    "redirect_uri"  => "https://{$tailscaleInfo->fqdn}:{$httpsPort}/graphql/api/auth/oidc/callback"
 ];
 
 $clientsJson = json_encode($clients, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 if ($clientsJson === false) {
-    logMessage("Failed to encode clients to JSON\n", 'ERROR');
+    logMessage("Failed to encode clients to JSON", 'ERROR');
     exit(1);
 }
 
 $clientsFile = '/boot/config/plugins/tsidp/oidc-funnel-clients.json';
 if (file_put_contents($clientsFile, $clientsJson) === false) {
-    logMessage("Failed to write clients file\n", 'ERROR');
+    logMessage("Failed to write clients file", 'ERROR');
     exit(1);
 }
-logMessage("Successfully updated clients file at {$clientsFile}\n");
+logMessage("Successfully updated clients file at {$clientsFile}");
 exit(0);
