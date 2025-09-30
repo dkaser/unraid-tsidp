@@ -16,7 +16,7 @@ _(Port)_:
 : <input type="number" name="TSIDP_PORT" value="<?= htmlspecialchars($cfg['TSIDP_PORT'] ?? 9990); ?>" min="1" max="65535" step="1">
 
 _(Allowed Hosts)_ (space separated):
-: <input type="text" name="ALLOWED_HOSTS" value="<?= htmlspecialchars($cfg['ALLOWED_HOSTS']); ?>">
+: <input type="text" name="ALLOWED_HOSTS" value="<?= htmlspecialchars($cfg['ALLOWED_HOSTS'] ?? ''); ?>">
 
 > Additional hosts (space-separated) that should be allowed for TSIDP.
 > This is the name that you use to log in to the Unraid webUI (e.g. unraid.local).
