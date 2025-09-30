@@ -89,7 +89,7 @@ if (isset($clients['unraidgui']['client_secret']) && is_string($clients['unraidg
     // Reuse existing client secret if it meets the length requirement
     $clientSecret = $clients['unraidgui']['client_secret'];
 } else {
-    logMessage("Generating new unraidgui client_secret\n");
+    logMessage("Generating new unraidgui client_secret");
     $clientSecret = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, $clientSecretLength);
 }
 
