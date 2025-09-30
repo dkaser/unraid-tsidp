@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.09.28.0400"
+  version="2025.09.30.0331"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
@@ -15,6 +15,12 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2025.09.30.0331
+
+### 🚀 Features
+
+- Add option to add allowed hosts ([#3](https://github.com/dkaser/unraid-tsidp/pull/3))
 
 ### 2025.09.28.0400
 
@@ -31,12 +37,6 @@
 ### 🐛 Bug Fixes
 
 - Add both HTTP and HTTPS redirect_uri entries to allow login via HTTPS when "Use SSL/TLS" is set to No
-
-### 2025.09.23
-
-### 🚀 Features
-
-- Update tsidp to latest version
 
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
@@ -111,9 +111,9 @@ if ($problems !== "") {
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.28.0400-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.28.0400/unraid-tsidp-2025.09.28.0400-noarch-1.txz</URL>
-<SHA256>15c3ac26842174a98493dd1d1887418a1fc01f6629b45ac53d4b874d13edeeef</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.09.30.0331-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.09.30.0331/unraid-tsidp-2025.09.30.0331-noarch-1.txz</URL>
+<SHA256>47384e33c0d75cacfb2beebcc72654adf3d1e62ab8eeb88679a565ce884db145</SHA256>
 </FILE>
 
 <!--
@@ -126,13 +126,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.28.0400-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.09.30.0331-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.28.0400')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.09.30.0331')
 
 echo ""
 echo "****************************************************"
@@ -151,7 +151,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.09.28.0400"
+echo " Version: 2025.09.30.0331"
 echo "----------------------------------------------------"
 echo ""
 ]]>
