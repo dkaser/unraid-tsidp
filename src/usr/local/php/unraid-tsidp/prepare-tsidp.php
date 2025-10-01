@@ -63,14 +63,14 @@ foreach ($allowedHosts as $host) {
         continue;
     }
 
-    if (str_starts_with($host, 'http://') || str_starts_with($host, 'https://')) {
+    if (filter_var($host, FILTER_VALIDATE_URL)) {
         logMessage("Processing allowed host with scheme: {$host}");
         $redirect_uris[] = rtrim($host, '/') . '/graphql/api/auth/oidc/callback';
         continue;
     }
 
     // Validate the hostname
-    if ( ! filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || filter_var($host, FILTER_VALIDATE_IP)) {
+    if ( ! (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) || filter_var($host, FILTER_VALIDATE_IP))) {
         logMessage("Skipping invalid hostname: {$host}", 'WARNING');
         continue;
     }
