@@ -64,6 +64,10 @@ foreach ($allowedHosts as $host) {
     }
 
     if (filter_var($host, FILTER_VALIDATE_URL)) {
+        if ( ! in_array(parse_url($host, PHP_URL_SCHEME), ['http', 'https'], true)) {
+            logMessage("Skipping URL with unsupported scheme: {$host}", 'WARNING');
+            continue;
+        }
         logMessage("Processing allowed host with scheme: {$host}");
         $redirect_uris[] = rtrim($host, '/') . '/graphql/api/auth/oidc/callback';
         continue;
