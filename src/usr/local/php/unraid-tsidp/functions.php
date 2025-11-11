@@ -121,6 +121,38 @@ function getAllowedHosts(): array
     return array_filter(array_map('trim', explode(' ', $allowedHosts)));
 }
 
+function getIpAddresses(): array
+{
+    $interfaces = net_get_interfaces() ?: [];
+
+    // For each interface, get the IPv4 addresses
+    $ipv4_addresses    = [];
+    $excluded_prefixes = ['lo', 'br-', 'veth', 'docker', 'virbr'];
+
+    foreach ($interfaces as $interface_name => $interface_data) {
+        // Check if the interface name starts with any of the excluded prefixes
+        $exclude = false;
+        foreach ($excluded_prefixes as $prefix) {
+            if (str_starts_with($interface_name, $prefix)) {
+                $exclude = true;
+                break;
+            }
+        }
+        if ($exclude) {
+            continue;
+        }
+
+        if (isset($interface_data['unicast'])) {
+            foreach ($interface_data['unicast'] as $unicast) {
+                if (isset($unicast['family']) && $unicast['family'] == 2 && isset($unicast['address'])) {
+                    $ipv4_addresses[] = $unicast['address'];
+                }
+            }
+        }
+    }
+    return $ipv4_addresses;
+}
+
 function getTsidpPort(): int|null
 {
     // Read TSIDP_PORT from tsidp.cfg

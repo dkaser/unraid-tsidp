@@ -54,6 +54,7 @@ if (file_exists($identFile)) {
 logMessage("Using HTTP port: {$httpPort}, HTTPS port: {$httpsPort}");
 
 $allowedHosts   = getAllowedHosts();
+$allowedHosts   = array_merge($allowedHosts, getIpAddresses());
 $allowedHosts[] = $tailscaleInfo->fqdn;
 $redirect_uris  = [];
 
