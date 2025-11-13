@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2025.10.01.0303"
+  version="2025.11.13.0342"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
@@ -15,6 +15,18 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2025.11.13.0342
+
+### 🐛 Bug Fixes
+
+- Automatically include IP addresses in redirect\_uris ([#5](https://github.com/dkaser/unraid-tsidp/pull/5))
+
+### 🧰 Maintenance
+
+- Update tsidp to v0.0.6 ([#6](https://github.com/dkaser/unraid-tsidp/pull/6))
+
+BREAKING CHANGE: User "emails" like user@github and user@keypass now have your idp's fully qualified domain name (FQDN) appended to them: user@github.idp.my-tn.ts.net, user@keypass.idp.my-tn.ts.net.
 
 ### 2025.10.01.0303
 
@@ -27,16 +39,6 @@
 ### 🚀 Features
 
 - Add option to add allowed hosts ([#3](https://github.com/dkaser/unraid-tsidp/pull/3))
-
-### 2025.09.28.0400
-
-### 🚀 Features
-
-- Update tsidp to 0.0.3 ([#1](https://github.com/dkaser/unraid-tsidp/pull/1))
-
-### 🐛 Bug Fixes
-
-- Skip install checks during boot-time install ([#2](https://github.com/dkaser/unraid-tsidp/pull/2))
 
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
@@ -111,9 +113,9 @@ if ($problems !== "") {
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.10.01.0303-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.10.01.0303/unraid-tsidp-2025.10.01.0303-noarch-1.txz</URL>
-<SHA256>b5dfcad0656c07056aa16041a7d8a88b28973ffabdf37f5e683bf3aa11dcfeef</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2025.11.13.0342-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2025.11.13.0342/unraid-tsidp-2025.11.13.0342-noarch-1.txz</URL>
+<SHA256>1f03d156c63625be2f10b3c5995e2497a9838f2c43addbf472da0914b796bb38</SHA256>
 </FILE>
 
 <!--
@@ -126,13 +128,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.10.01.0303-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2025.11.13.0342-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.10.01.0303')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2025.11.13.0342')
 
 echo ""
 echo "****************************************************"
@@ -151,7 +153,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2025.10.01.0303"
+echo " Version: 2025.11.13.0342"
 echo "----------------------------------------------------"
 echo ""
 ]]>
