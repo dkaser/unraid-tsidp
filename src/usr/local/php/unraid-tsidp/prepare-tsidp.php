@@ -110,7 +110,7 @@ if (isset($clients['unraidgui']['client_secret']) && is_string($clients['unraidg
 $clients['unraidgui'] = [
     "client_id"     => "unraidgui",
     "client_secret" => $clientSecret,
-    "redirect_uris" => $redirect_uris,
+    "redirect_uris" => array_values($redirect_uris),
     "created_at"    => "0001-01-01T00:00:00Z",
     "redirect_uri"  => "https://{$tailscaleInfo->fqdn}:{$httpsPort}/graphql/api/auth/oidc/callback"
 ];
