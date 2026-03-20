@@ -4,7 +4,7 @@
 <PLUGIN 
   name="tsidp"
   author="Derek Kaser"
-  version="2026.01.14.0236"
+  version="2026.03.20.0249"
   
   pluginURL="https://raw.githubusercontent.com/dkaser/unraid-tsidp/main/plugin/tsidp.plg"
   support="https://forums.unraid.net/topic/193586-plugin-tailscale-idp/"
@@ -15,6 +15,16 @@
 
 <CHANGES>
 <![CDATA[
+
+### 2026.03.20.0249
+
+### 🚀 Features
+
+- Update tsidp to 0.0.12 ([#18](https://github.com/dkaser/unraid-tsidp/pull/18))
+
+### 🧰 Maintenance
+
+- Add license footer ([#10](https://github.com/dkaser/unraid-tsidp/pull/10))
 
 ### 2026.01.14.0236
 
@@ -37,12 +47,6 @@
 - Update tsidp to v0.0.6 ([#6](https://github.com/dkaser/unraid-tsidp/pull/6))
 
 BREAKING CHANGE: User "emails" like user@github and user@keypass now have your idp's fully qualified domain name (FQDN) appended to them: user@github.idp.my-tn.ts.net, user@keypass.idp.my-tn.ts.net.
-
-### 2025.10.01.0303
-
-### 🚀 Features
-
-- Allow adding hosts with scheme/port ([#4](https://github.com/dkaser/unraid-tsidp/pull/4))
 
 
 For older releases, see https://github.com/dkaser/unraid-tsidp/releases
@@ -117,9 +121,9 @@ if ($problems !== "") {
 </INLINE>
 </FILE>
 
-<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2026.01.14.0236-noarch-1.txz">
-<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2026.01.14.0236/unraid-tsidp-2026.01.14.0236-noarch-1.txz</URL>
-<SHA256>be2eff1402b7814cbb2f22caa9a9fd4c84f4f8938d10b58b2bbf547f50508b70</SHA256>
+<FILE Name="/boot/config/plugins/tsidp/unraid-tsidp-2026.03.20.0249-noarch-1.txz">
+<URL>https://github.com/dkaser/unraid-tsidp/releases/download/2026.03.20.0249/unraid-tsidp-2026.03.20.0249-noarch-1.txz</URL>
+<SHA256>987089236229ab59331c38c44786e81aaaa7a413c553f7991dbdacfa4be3d646</SHA256>
 </FILE>
 
 <!--
@@ -132,13 +136,13 @@ if [ -f /etc/rc.d/rc.tsidp ]; then
   /etc/rc.d/rc.tsidp stop
 fi
 
-upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2026.01.14.0236-noarch-1.txz
+upgradepkg --install-new /boot/config/plugins/tsidp/unraid-tsidp-2026.03.20.0249-noarch-1.txz
 
 /etc/rc.d/rc.crond restart
 /etc/rc.d/rc.tsidp start
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2026.01.14.0236')
+rm -f $(ls /boot/config/plugins/tsidp/unraid-tsidp-*.txz 2>/dev/null | grep -v '2026.03.20.0249')
 
 echo ""
 echo "****************************************************"
@@ -157,7 +161,7 @@ echo "****************************************************"
 echo ""
 echo "----------------------------------------------------"
 echo " tsidp has been installed."
-echo " Version: 2026.01.14.0236"
+echo " Version: 2026.03.20.0249"
 echo "----------------------------------------------------"
 echo ""
 ]]>
