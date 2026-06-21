@@ -54,7 +54,7 @@ $issuer = "https://{$tailscaleInfo->fqdn}:{$tsidpPort}";
 file_put_contents('/var/run/tsidp-issuer', $issuer);
 
 $clients = getClientsFile();
-if ( ! isset($clients['unraidgui']) || ! isset($clients['unraidgui']['client_id']) || ! isset($clients['unraidgui']['client_secret']) || ! is_string($clients['unraidgui']['client_id'])) {
+if ( ! isset($clients['unraidgui']) || ! isset($clients['unraidgui']['client_id']) || ! isset($clients['unraidgui']['client_secret']) || ! is_string($clients['unraidgui']['client_id']) || ! is_string($clients['unraidgui']['client_secret'])) {
     logMessage("Invalid clients file format\n", 'ERROR');
     safeExit(1, $keyName);
 }
